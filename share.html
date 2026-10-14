@@ -1,41 +1,192 @@
+```html
 <!DOCTYPE html>
-<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>작업계획 및 점검현황 대시보드</title>
-<!-- 카톡에 이 페이지 주소를 붙여넣었을 때 보이는 미리보기 (주소 뒤에 ?go=1 을 붙여 공유) -->
+
+<!-- 카카오톡 링크 미리보기 -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="작업계획 및 점검현황 대시보드">
-<meta property="og:description" content="SDS 구미 AI 데이터센터 · 눌러서 모바일 대시보드를 확인하세요">
-<!-- <meta property="og:image" content="https://계정.github.io/저장소/preview.png"> 800x400 정도 이미지를 같은 저장소에 올리면 미리보기에 사진이 붙습니다 -->
-<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" crossorigin="anonymous"></script>
-<script>
-// ▼▼ 여기 두 줄만 본인 값으로 바꾸세요 ▼▼
-const KAKAO_JS_KEY = '85f00cb056f014ea3ec4772a410d5044';
-const DASHBOARD_URL = 'https://script.google.com/macros/s/AKfycbxkr48bdRxGnSpLqYRfz8Nlmm7r9n4l5ffCxEEnHWRP5EYFMb3Q4XP-g-tyo989Qfbxdw/exec';
-// ▲▲
-const Q = new URLSearchParams(location.search);
-if (Q.get('go') === '1') location.replace(DASHBOARD_URL);   // 짧은 링크 모드: 미리보기는 위 og 태그, 눌러 들어오면 바로 대시보드로 이동
-const DEFAULT_TEXT = '[작업계획 및 점검현황 업데이트]\n\n아래 버튼을 눌러 모바일 대시보드를 확인하세요.';
-</script>
+<meta property="og:description"
+      content="SDS 구미 AI 데이터센터 · 작업계획과 점검현황을 확인하세요">
+<meta property="og:image"
+      content="https://kimpt9090-del.github.io/rdi-share/preview.png">
+<meta property="og:url"
+      content="https://kimpt9090-del.github.io/rdi-share/share.html">
+
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
+        crossorigin="anonymous"></script>
+
 <style>
-body{margin:0;font-family:"Noto Sans KR",Arial,sans-serif;background:#f1e9d4;color:#1b2536;display:flex;min-height:100vh;align-items:center;justify-content:center;padding:16px}
-.box{background:#fffcf2;border:1.5px solid #d3c59f;border-radius:14px;padding:22px;max-width:420px;width:100%;box-shadow:0 4px 14px rgba(110,85,30,.15)}
-h1{font-size:18px;margin:0 0 12px}pre{white-space:pre-wrap;background:#fff;border:1px solid #e0d6b8;border-radius:10px;padding:12px;font:14px/1.6 inherit;margin:0 0 14px}
-button{width:100%;border:0;border-radius:10px;background:#fee500;color:#191919;font-size:16px;font-weight:800;padding:13px;cursor:pointer}
-.sub{display:block;text-align:center;margin-top:10px;color:#6b7688;font-size:13px;text-decoration:none}.err{color:#c0262d;font-size:13px;margin-top:10px;display:none}
-</style></head><body>
-<div class="box"><h1>💬 카카오톡으로 대시보드 공유</h1><pre id="pv"></pre>
-<button id="go">카카오톡으로 공유하기</button><a class="sub" id="open" href="#">대시보드 바로 열기 ›</a><div class="err" id="err"></div></div>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 16px;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Arial, "Noto Sans KR", sans-serif;
+  background: #f1e9d4;
+  color: #1b2536;
+}
+
+.box {
+  width: 100%;
+  max-width: 420px;
+  padding: 22px;
+  background: #fffcf2;
+  border: 1px solid #d3c59f;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(110,85,30,.15);
+}
+
+h1 {
+  margin: 0 0 14px;
+  font-size: 19px;
+}
+
+.preview {
+  margin-bottom: 14px;
+  padding: 12px;
+  border: 1px solid #e0d6b8;
+  border-radius: 10px;
+  background: white;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  border: 0;
+  border-radius: 10px;
+  background: #fee500;
+  color: #191919;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.sub {
+  display: block;
+  margin-top: 12px;
+  color: #586477;
+  text-align: center;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.err {
+  display: none;
+  margin-top: 12px;
+  color: #c0262d;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+</style>
+</head>
+
+<body>
+<div class="box">
+  <h1>💬 카카오톡으로 대시보드 공유</h1>
+
+  <div class="preview" id="pv"></div>
+
+  <button id="shareBtn">카카오톡으로 공유하기</button>
+
+  <a class="sub" id="open" href="#">
+    대시보드 바로 열기 ›
+  </a>
+
+  <div class="err" id="err"></div>
+</div>
+
 <script>
-const TEXT = (Q.get('t') || DEFAULT_TEXT).slice(0, 200);   // 카카오 text 템플릿은 최대 200자
+// 카카오 JavaScript 키
+const KAKAO_JS_KEY = '85f00cb056f014ea3ec4772a410d5044';
+
+// 실제 대시보드 주소
+const DASHBOARD_URL =
+  'https://script.google.com/macros/s/AKfycbxkr48bdRxGnSpLqYRfz8Nlmm7r9n4l5ffCxEEnHWRP5EYFMb3Q4XP-g-tyo989Qfbxdw/exec';
+
+// 미리보기 이미지 주소
+const PREVIEW_IMAGE =
+  'https://kimpt9090-del.github.io/rdi-share/preview.png';
+
+// 기본 공유 문구
+const DEFAULT_TEXT =
+  'SDS 구미 AI 데이터센터 · 작업계획과 점검현황을 확인하세요';
+
+const Q = new URLSearchParams(location.search);
+
+// ?go=1로 접속하면 실제 대시보드로 이동
+if (Q.get('go') === '1') {
+  location.replace(DASHBOARD_URL);
+}
+
+const TEXT = (Q.get('t') || DEFAULT_TEXT).slice(0, 200);
+
 document.getElementById('pv').textContent = TEXT;
 document.getElementById('open').href = DASHBOARD_URL;
-const fail = m => { const e = document.getElementById('err'); e.textContent = m; e.style.display = 'block'; };
-document.getElementById('go').onclick = function () {
+
+function showError(message) {
+  const el = document.getElementById('err');
+  el.textContent = message;
+  el.style.display = 'block';
+}
+
+document.getElementById('shareBtn').onclick = function () {
   try {
-    if (!window.Kakao) return fail('카카오 SDK를 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.');
-    if (!Kakao.isInitialized()) Kakao.init(KAKAO_JS_KEY);
-    const link = { mobileWebUrl: DASHBOARD_URL, webUrl: DASHBOARD_URL };
-    Kakao.Share.sendDefault({ objectType: 'text', text: TEXT, link: link, buttons: [{ title: '대시보드 열어하기', link: link }] });
-  } catch (e) { fail('공유 실패: ' + (e.message || e) + ' (JavaScript 키와 등록한 도메인을 확인해 주세요)'); }
+    if (!window.Kakao) {
+      showError('카카오 SDK를 불러오지 못했습니다. 인터넷 연결을 확인하세요.');
+      return;
+    }
+
+    if (!Kakao.isInitialized()) {
+      Kakao.init(KAKAO_JS_KEY);
+    }
+
+    const link = {
+      mobileWebUrl: DASHBOARD_URL,
+      webUrl: DASHBOARD_URL
+    };
+
+    // 제목, 설명, 이미지, 버튼이 포함된 카드 공유
+    Kakao.Share.sendDefault({
+      objectType: 'feed',
+
+      content: {
+        title: '작업계획 및 점검현황 대시보드',
+        description: TEXT,
+        imageUrl: PREVIEW_IMAGE,
+        link: link
+      },
+
+      buttons: [
+        {
+          title: '대시보드 열기',
+          link: link
+        }
+      ]
+    });
+
+  } catch (e) {
+    showError(
+      '공유 실패: ' + (e.message || e) +
+      ' · JavaScript 키와 도메인 설정을 확인하세요.'
+    );
+  }
 };
-</script></body></html>
+</script>
+</body>
+</html>
+```
